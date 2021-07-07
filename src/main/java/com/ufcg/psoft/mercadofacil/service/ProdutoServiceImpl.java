@@ -38,7 +38,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 
 	public Produto criaProduto(ProdutoDTO produtoDTO) {
 		Produto produto = new Produto(produtoDTO.getNome(), produtoDTO.getFabricante(), produtoDTO.getCodigoBarra(),
-				produtoDTO.getPreco(), produtoDTO.getCategoria());
+				produtoDTO.getPreco(), produtoDTO.getCategoria(), produtoDTO.getDescricao());
 		
 		produto.tornaDisponivel();
 		return produto;
@@ -50,6 +50,8 @@ public class ProdutoServiceImpl implements ProdutoService {
 		produto.setCodigoBarra(produtoDTO.getCodigoBarra());
 		produto.mudaFabricante(produtoDTO.getFabricante());
 		produto.mudaCategoria(produtoDTO.getCategoria());
+		
+		produto.mudaDescricao(produtoDTO.getDescricao());
 		
 		return produto;
 	}
