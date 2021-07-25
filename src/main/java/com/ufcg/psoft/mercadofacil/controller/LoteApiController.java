@@ -28,36 +28,37 @@ public class LoteApiController {
 
 	@Autowired
 	LoteService loteService;
-	
+
 	@Autowired
 	ProdutoService produtoService;
-	
+
 	@RequestMapping(value = "/lotes", method = RequestMethod.GET)
 	public ResponseEntity<?> listarLotes() {
-		
+
 		List<Lote> lotes = loteService.listarLotes();
 
 		if (lotes.isEmpty()) {
 			return ErroLote.erroSemLotesCadastrados();
 		}
-		
+
 		return new ResponseEntity<List<Lote>>(lotes, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/produto/{idProduto}/lote/", method = RequestMethod.POST)
 	public ResponseEntity<?> criarLote(@PathVariable("idProduto") long id, @RequestBody int numItens, String validade) {
-		
+
 		Optional<Produto> optionalProduto = produtoService.getProdutoById(id);
-		
+
 		if (!optionalProduto.isPresent()) {
 			return ErroProduto.erroProdutoNaoEnconrtrado(id);
 		}
-		
+
 		Produto produto = optionalProduto.get();
 		Lote lote = loteService.criaLote(numItens, produto, validade);
-		
-		if (!produto.isDisponivel() & (numItens > 0)) {
+
+		if (numItens > 0) {
 			produto.tornaDisponivel();
+			produto.adicionarEstoque(numItens);
 			produtoService.salvarProdutoCadastrado(produto);
 		}
 
@@ -65,45 +66,45 @@ public class LoteApiController {
 
 		return new ResponseEntity<>(lote, HttpStatus.CREATED);
 	}
-	
+
 	@RequestMapping(value = "/lotes/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> consultarLote(@PathVariable("id") long id) {
 
 		Optional<Lote> optionalLote = loteService.getLoteById(id);
-	
+
 		if (!optionalLote.isPresent()) {
 			return ErroLote.erroLoteNaoEncontrado(id);
 		}
-		
+
 		return new ResponseEntity<Lote>(optionalLote.get(), HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/lotes/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> atualizarLote(@PathVariable("id") long id, @RequestBody LoteDTO loteDTO) {
 
 		Optional<Lote> optionalLote = loteService.getLoteById(id);
-		
+
 		if (!optionalLote.isPresent()) {
 			return ErroLote.erroLoteNaoEncontrado(id);
 		}
-		
+
 		Lote lote = optionalLote.get();
-		
+
 		loteService.atualizaLote(loteDTO, lote);
 		loteService.salvarLote(lote);
-		
+
 		return new ResponseEntity<Lote>(lote, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/lotes/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> removeLote(@PathVariable("id") long id){
-		
+	public ResponseEntity<?> removeLote(@PathVariable("id") long id) {
+
 		Optional<Lote> optionalLote = loteService.getLoteById(id);
-		
-		if(!optionalLote.isPresent()) {
+
+		if (!optionalLote.isPresent()) {
 			return ErroLote.erroLoteNaoEncontrado(id);
 		}
-		
+
 		loteService.removerLote(optionalLote.get());
 		return new ResponseEntity<Lote>(HttpStatus.OK);
 	}
