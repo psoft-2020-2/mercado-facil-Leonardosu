@@ -44,8 +44,9 @@ public class Produto {
 		this.codigoBarra = codigoBarra;
 		this.fabricante = fabricante;
 		this.categoria = nomeCategoria;
-		this.isDisponivel = false;
 		this.descricao = descricao;
+
+		this.isDisponivel = false;
 		this.qtdEstoque = 0;
 	}
 
@@ -139,9 +140,7 @@ public class Produto {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
+		if (obj == null || getClass() != obj.getClass())
 			return false;
 
 		Produto other = (Produto) obj;
