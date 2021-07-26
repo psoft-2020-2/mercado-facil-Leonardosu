@@ -8,16 +8,18 @@ import com.ufcg.psoft.mercadofacil.model.Lote;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 
 public interface LoteService {
-	
+
 	public Optional<Lote> getLoteById(long id);
-	
+
 	public List<Lote> listarLotes();
 
 	public Lote criaLote(int numItens, Produto produto, String validade);
-	
+
 	public void salvarLote(Lote lote);
-	
+
 	public void removerLote(Lote lote);
-	
+
 	public Lote atualizaLote(LoteDTO loteDTO, Lote lote);
+
+	public List<Lote> getLotesPeloProduto(Produto produto);
 }
