@@ -9,17 +9,17 @@ import com.ufcg.psoft.mercadofacil.model.Cliente;
 public interface ClienteService {
 
 	public Optional<Cliente> getClienteById(Long id);
-	
+
 	public Optional<Cliente> getClienteByCPF(Long cpf);
-	
+
 	public void removerClienteCadastrado(Cliente cliente);
 
 	public void salvarClienteCadastrado(Cliente cliente);
 
 	public List<Cliente> listarClientes();
-	
+
 	public Cliente criaCliente(ClienteDTO clienteDTO);
-	
+
 	public Cliente atualizaCliente(ClienteDTO clienteDTO, Cliente cliente);
 
 }
