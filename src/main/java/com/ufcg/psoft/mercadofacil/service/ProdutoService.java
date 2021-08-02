@@ -12,13 +12,13 @@ public interface ProdutoService {
 	
 	public List<Produto> getProdutoByCodigoBarra(String codigo);
 	
-	public void removerProdutoCadastrado(Produto produto);
+	public List<Produto> listarProdutos();
+
+	public Produto criaProduto(ProdutoDTO produto);
 
 	public void salvarProdutoCadastrado(Produto produto);
-
-	public List<Produto> listarProdutos();
 	
-	public Produto criaProduto(ProdutoDTO produto);
+	public void removerProdutoCadastrado(Produto produto);
 	
 	public Produto atualizaProduto(ProdutoDTO produtoDTO, Produto produto);
 }

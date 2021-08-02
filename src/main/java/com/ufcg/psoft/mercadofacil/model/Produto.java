@@ -24,13 +24,15 @@ public class Produto {
 	private String fabricante;
 
 	private String categoria;
-
+	
+	private String descricao;
+	
 	private boolean isDisponivel;
 
 	private Produto() {	}
 
 	public Produto(String nome, String codigoBarra, String fabricante,
-			BigDecimal preco, String nomeCategoria) {
+			BigDecimal preco, String nomeCategoria, String descricao) {
 		
 		this.nome = nome;
 		this.preco = preco;
@@ -38,6 +40,7 @@ public class Produto {
 		this.fabricante = fabricante;
 		this.categoria = nomeCategoria;
 		this.isDisponivel = false;
+		this.descricao = descricao;
 	}
 	
 	public Long getId() {
@@ -91,7 +94,15 @@ public class Produto {
 	public boolean isDisponivel() {
 		return this.isDisponivel;
 	}
-
+	
+	public String getDescricao() {
+		return this.descricao;
+	}
+	
+	public void mudaDescricao(String novaDescricao) {
+		this.descricao = novaDescricao;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -109,17 +120,21 @@ public class Produto {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		Produto other = (Produto) obj;
-		if (fabricante == null) {
+		
+		if (fabricante == null) 
 			if (other.fabricante != null)
-				return false;
-		} else if (!fabricante.equals(other.fabricante))
+				return false;				
+		else if (!fabricante.equals(other.fabricante))
 			return false;
-		if (nome == null) {
+		
+		if (nome == null) 
 			if (other.nome != null)
-				return false;
-		} else if (!nome.equals(other.nome))
+				return false;		
+		else if (!nome.equals(other.nome))
 			return false;
+		
 		return true;
 	}
 	
