@@ -19,6 +19,8 @@ public class ErroProduto {
 
 	static final String ESTOQUE_INSUFICIENTE = "Nao ha quantidade suficiente de produtos";
 
+	static final String QUANTIDADE_INVALIDA = "Quantidade invalidade de produtos";
+
 	public static ResponseEntity<CustomErrorType> erroProdutoNaoEnconrtrado(long id) {
 		return new ResponseEntity<CustomErrorType>(
 				new CustomErrorType(String.format(ErroProduto.PRODUTO_NAO_CASTRADO, id)), HttpStatus.NOT_FOUND);
@@ -44,5 +46,10 @@ public class ErroProduto {
 	public static ResponseEntity<CustomErrorType> erroEstoqueInsuficiente() {
 		return new ResponseEntity<CustomErrorType>(new CustomErrorType(String.format(ErroProduto.ESTOQUE_INSUFICIENTE)),
 				HttpStatus.NOT_ACCEPTABLE);
+	}
+
+	public static ResponseEntity<CustomErrorType> erroQuantidadeInvalida(long quantidade) {
+		return new ResponseEntity<CustomErrorType>(
+				new CustomErrorType(String.format(ErroProduto.QUANTIDADE_INVALIDA, quantidade)), HttpStatus.NOT_FOUND);
 	}
 }
