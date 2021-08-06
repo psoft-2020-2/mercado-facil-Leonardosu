@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
-import com.ufcg.psoft.mercadofacil.model.Cliente;
+import com.ufcg.psoft.mercadofacil.model.Cliente.Cliente;
 
 public interface ClienteService {
 
