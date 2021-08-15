@@ -1,20 +1,22 @@
 package com.ufcg.psoft.mercadofacil.controller;
 
-import java.util.List;
 import java.util.Optional;
-import com.ufcg.psoft.mercadofacil.model.Compra;
+
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Cliente.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Cliente.ClienteEspecial;
 import com.ufcg.psoft.mercadofacil.model.Cliente.ClienteNormal;
 import com.ufcg.psoft.mercadofacil.model.Cliente.ClientePremium;
+
 import com.ufcg.psoft.mercadofacil.repository.CarrinhoRepository;
 import com.ufcg.psoft.mercadofacil.repository.ClienteRepository;
+
 import com.ufcg.psoft.mercadofacil.util.ErroCliente;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,31 +39,21 @@ public class AdministradorApiController {
 
         Optional<Cliente> clienteOP = clienteRepository.findById(id);
 
-        if (!clienteOP.isPresent()) {
+        if (!clienteOP.isPresent())
             return ErroCliente.erroClienteNaoEnconrtrado(id);
-        }
 
         Cliente cliente = clienteOP.get();
 
-        if (cliente.toString() == "Especial") {
+        if (cliente.toString() == "Especial")
             return ErroCliente.erroClienteJaEhEspecial();
-        }
 
-        Carrinho carrinho = cliente.getCarrinho();
-        List<Compra> compras = cliente.getCompras();
-
-        if (cliente.getCarrinho() == null) {
-
-            carrinho = new Carrinho();
-
-            carrinho.setCliente(cliente);
-
-            // clienteRepository.save(cliente);
-            carrinhoRepository.save(carrinho);
-        }
-
-        // Cliente clienteEspecial =
         Cliente clienteEspecial = new ClienteEspecial(cliente);
+
+        clienteEspecial.setCompras(cliente.getCompras());
+        if (cliente.getCarrinho() == null)
+            criarNovoCarrinho(cliente, clienteEspecial);
+        else
+            clienteEspecial.setCarrinho(cliente.getCarrinho());
 
         clienteRepository.deleteById(id);
         clienteEspecial.setId(id);
@@ -76,29 +68,20 @@ public class AdministradorApiController {
 
         Optional<Cliente> clienteOP = clienteRepository.findById(id);
 
-        if (!clienteOP.isPresent()) {
+        if (!clienteOP.isPresent())
             return ErroCliente.erroClienteNaoEnconrtrado(id);
-        }
 
         Cliente cliente = clienteOP.get();
 
-        if (cliente.toString() == "Premium") {
+        if (cliente.toString() == "Premium")
             return ErroCliente.erroClienteJaEhPremium();
-        }
 
         Cliente clientePremium = new ClientePremium(cliente);
-        // clientePremium.setTipo("Premium");
-
         clientePremium.setCompras(cliente.getCompras());
-        if (cliente.getCarrinho() == null) {
 
-            Carrinho carrinho = new Carrinho(cliente.getId());
-            carrinho.setCliente(clientePremium);
-            clientePremium.setCarrinho(carrinho);
-
-            clienteRepository.save(clientePremium);
-            carrinhoRepository.save(carrinho);
-        } else
+        if (cliente.getCarrinho() == null)
+            criarNovoCarrinho(cliente, clientePremium);
+        else
             clientePremium.setCarrinho(cliente.getCarrinho());
 
         clienteRepository.delete(cliente);
@@ -112,27 +95,19 @@ public class AdministradorApiController {
 
         Optional<Cliente> clienteOP = clienteRepository.findById(id);
 
-        if (!clienteOP.isPresent()) {
+        if (!clienteOP.isPresent())
             return ErroCliente.erroClienteNaoEnconrtrado(id);
-        }
 
         Cliente cliente = clienteOP.get();
 
-        if (cliente.toString() == "Normal") {
+        if (cliente.toString() == "Normal")
             return ErroCliente.erroClienteJaEhNormal();
-        }
 
         Cliente clienteNormal = new ClienteNormal(cliente);
-        // clienteNormal.setTipo("Normal");
         clienteNormal.setCompras(cliente.getCompras());
+
         if (cliente.getCarrinho() == null) {
-
-            Carrinho carrinho = new Carrinho(cliente.getId());
-            carrinho.setCliente(clienteNormal);
-            clienteNormal.setCarrinho(carrinho);
-
-            clienteRepository.save(clienteNormal);
-            carrinhoRepository.save(carrinho);
+            criarNovoCarrinho(cliente, clienteNormal);
         } else
             clienteNormal.setCarrinho(cliente.getCarrinho());
 
@@ -142,4 +117,12 @@ public class AdministradorApiController {
         return new ResponseEntity<Cliente>(clienteNormal, HttpStatus.OK);
     }
 
+    private void criarNovoCarrinho(Cliente cliente, Cliente novoCliente) {
+        Carrinho carrinho = new Carrinho(cliente.getId());
+        carrinho.setCliente(novoCliente);
+        novoCliente.setCarrinho(carrinho);
+
+        clienteRepository.save(novoCliente);
+        carrinhoRepository.save(carrinho);
+    }
 }
