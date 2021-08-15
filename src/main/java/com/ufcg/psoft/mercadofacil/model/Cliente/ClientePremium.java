@@ -10,7 +10,6 @@ import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
 public class ClientePremium extends Cliente {
     public ClientePremium() {
         super();
-        // super.setTipo("Premium");
     }
 
     public ClientePremium(long id) {
