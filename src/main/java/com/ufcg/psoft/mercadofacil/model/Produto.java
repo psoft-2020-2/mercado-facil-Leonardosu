@@ -14,7 +14,7 @@ public class Produto {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	private String nome;
 
 	private BigDecimal preco;
@@ -24,29 +24,36 @@ public class Produto {
 	private String fabricante;
 
 	private String categoria;
-	
+
 	private String descricao;
-	
+
 	private boolean isDisponivel;
 
-	private Produto() {	}
+	private int qtdEstoque;
 
-	public Produto(String nome, String codigoBarra, String fabricante,
-			BigDecimal preco, String nomeCategoria, String descricao) {
-		
+	private Produto() {
+	}
+
+	public Produto(String nome, String codigoBarra, String fabricante, BigDecimal preco, String nomeCategoria,
+			String descricao) {
+
+		this();
+
 		this.nome = nome;
 		this.preco = preco;
 		this.codigoBarra = codigoBarra;
 		this.fabricante = fabricante;
 		this.categoria = nomeCategoria;
-		this.isDisponivel = false;
 		this.descricao = descricao;
+
+		this.isDisponivel = false;
+		this.qtdEstoque = 0;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
-	
+
 	public String getNome() {
 		return nome;
 	}
@@ -86,23 +93,40 @@ public class Produto {
 	public void mudaCategoria(String categoria) {
 		this.categoria = categoria;
 	}
-		
-	public void tornaDisponivel() { 
+
+	public void tornaDisponivel() {
 		this.isDisponivel = true;
 	}
-	
+
+	public void tornaIndisponivel() {
+		this.isDisponivel = false;
+	}
+
 	public boolean isDisponivel() {
 		return this.isDisponivel;
 	}
-	
+
 	public String getDescricao() {
 		return this.descricao;
 	}
-	
+
 	public void mudaDescricao(String novaDescricao) {
 		this.descricao = novaDescricao;
 	}
-	
+
+	// coisa nova
+	public void adicionarEstoque(long quantidade) {
+		this.qtdEstoque += quantidade;
+	}
+
+	public void removerEstoque(long quantidade) {
+		this.qtdEstoque -= quantidade;
+	}
+
+	public long getEstoque() {
+		return this.qtdEstoque;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -116,29 +140,28 @@ public class Produto {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (obj == null || getClass() != obj.getClass())
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		
+
 		Produto other = (Produto) obj;
-		
-		if (fabricante == null) 
+
+		if (fabricante == null)
 			if (other.fabricante != null)
-				return false;				
-		else if (!fabricante.equals(other.fabricante))
-			return false;
-		
-		if (nome == null) 
+				return false;
+			else if (!fabricante.equals(other.fabricante))
+				return false;
+
+		if (nome == null)
 			if (other.nome != null)
-				return false;		
-		else if (!nome.equals(other.nome))
-			return false;
-		
+				return false;
+			else if (!nome.equals(other.nome))
+				return false;
+
 		return true;
 	}
-	
+
 	public String toString() {
-		return this.id + " " + this.nome;
+		return this.id + " " + this.nome + " R$" + this.preco.toString();
 	}
+
 }

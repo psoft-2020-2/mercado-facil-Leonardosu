@@ -11,22 +11,30 @@ public class Cliente {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	private Long CPF;
-	
+
 	private String nome;
 
 	private Integer idade;
 
 	private String endereco;
 
-	private Cliente() {}
+	// @OneToMany
+	// private Carrinho carrinho;
+
+	// private List<List<Compra>> comprasFeitas;
+
+	private Cliente() {
+	}
 
 	public Cliente(Long cpf, String nome, Integer idade, String endereco) {
 		this.CPF = cpf;
 		this.nome = nome;
 		this.idade = idade;
 		this.endereco = endereco;
+		// this.carrinho = new Carrinho();
+		// this.comprasFeitas = new ArrayList<Carrinho>();
 	}
 
 	public Long getId() {
@@ -56,4 +64,10 @@ public class Cliente {
 	public void setEndereco(String endereco) {
 		this.endereco = endereco;
 	}
+
+	// public List<String> listarCompras() {
+	// List<String> resultado = new ArrayList<String>();
+
+	// return resultado;
+	// }
 }
