@@ -186,66 +186,43 @@ public class CarrinhoApiController {
         return new ResponseEntity<>(novoCarrinho, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/cliente/{id}/compra", method = RequestMethod.GET)
+    public ResponseEntity<?> listarFormasDePagamento() {
+
+        String pagamentos = "Boleto\n" + "PayPal\n" + "CartaoDeCredito\n";
+
+        return new ResponseEntity<String>(pagamentos, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/cliente/{id}/compra", method = RequestMethod.POST)
     public ResponseEntity<?> comprarCarrinho(@PathVariable("id") long id, @RequestBody String formaPagamento) {
 
-        if (!clienteRepository.findById(id).isPresent()) {
+        if (!clienteRepository.findById(id).isPresent())
             return ErroCliente.erroClienteNaoEnconrtrado(id);
-        }
 
         Cliente cliente = clienteRepository.findClienteById(id);
         Carrinho carrinho = cliente.getCarrinho();
 
-        if (carrinho == null || carrinho.getQuantidadeTotal() == 0) {
+        if (carrinho == null || carrinho.getQuantidadeTotal() == 0)
             return ErroCarrinho.erroCarrinhoVazio();
-        }
 
         Compra compra = new Compra();
-        Pagamento pagamento;
-        formaPagamento = formaPagamento.toLowerCase();
-        formaPagamento.equals("boleto");
-
-        if (formaPagamento.equals("boleto")) {
-            pagamento = new Boleto();
-            compra.setPagamento("Boleto");
-        } else if (formaPagamento.equals("paypal")) {
-            pagamento = new Paypal();
-            compra.setPagamento("PayPal");
-        } else if (formaPagamento.equals("cartaodecredito")) {
-            pagamento = new CartaoDeCredito();
-            compra.setPagamento("CartaoDeCredito");
-        } else
-            return ErroPagamento.erroPagamentoInvalido();
-
         List<Pedido> pedidos = carrinho.getPedidos();
 
-        long quantidade = carrinho.getQuantidadeTotal();
-        BigDecimal valorTotal = new BigDecimal(0);
+        if (!pagamentoValido(formaPagamento))
+            return ErroPagamento.erroPagamentoInvalido();
 
-        for (Pedido pedidoAtual : pedidos) {
+        Pagamento pagamento = criaPagamento(formaPagamento, compra);
 
-            BigDecimal quantidadeAtual = new BigDecimal(pedidoAtual.getQuantidade());
-            BigDecimal valorAtual = pedidoAtual.getPreco().multiply(quantidadeAtual);
-            valorTotal = valorTotal.add(valorAtual);
+        // Cálculo do valor final
+        BigDecimal valorTotal = calculaPrecoCarrinho(pedidos, cliente, pagamento);
+        // Atualização do estoque, removendo os produtos que estão no carrinho
+        removeDoEstoque(pedidos);
 
-            long produtoId = pedidoAtual.getProduto().getId();
-
-            Optional<Produto> produtoOP = produtoRepository.findById(produtoId);
-            Produto produto = produtoOP.get();
-
-            produto.removerEstoque(pedidoAtual.getQuantidade());
-            produtoRepository.save(produto);
-            compra.adicionaProduto(produto);
-        }
-
-        valorTotal = new BigDecimal(cliente.descontoCompras(valorTotal.doubleValue(), quantidade));
-
-        valorTotal = new BigDecimal(pagamento.getValor(valorTotal.doubleValue()));
-
+        // Adicionando produtos que estão no carrinho a compra atual.
+        adicionaPedidosNaCompra(pedidos, compra);
         compra.setValor(valorTotal.setScale(2, RoundingMode.HALF_UP));
-
         compra.setCliente(cliente);
-
         compraRepository.save(compra);
 
         cliente.adicionaCompra(compra);
@@ -256,4 +233,110 @@ public class CarrinhoApiController {
         return new ResponseEntity<String>(compra.toString(), HttpStatus.CREATED);
     }
 
+    /**
+     * Checa se dado a forma de pagamento ele é válido.
+     * 
+     * @param formaPagamento Forma de pagamento
+     * @return
+     */
+    private boolean pagamentoValido(String formaPagamento) {
+        if (formaPagamento == null)
+            return false;
+
+        formaPagamento = formaPagamento.toLowerCase().trim();
+        if (formaPagamento.isEmpty() || formaPagamento.isBlank())
+            return false;
+
+        if (formaPagamento.equals("boleto") || formaPagamento.equals("paypal")
+                || formaPagamento.equals("cartaodecredito"))
+            return true;
+
+        return false;
+    }
+
+    /**
+     * Cria um pagamento de acordo com a forma de pagamento
+     * 
+     * @param formaPagamento Forma de pagamento
+     * @param compra         Compra atual
+     * @return
+     */
+    private Pagamento criaPagamento(String formaPagamento, Compra compra) {
+
+        formaPagamento = formaPagamento.toLowerCase();
+        Pagamento pagamento;
+
+        if (formaPagamento.equals("boleto")) {
+            pagamento = new Boleto();
+            compra.setPagamento("Boleto");
+        } else if (formaPagamento.equals("paypal")) {
+            pagamento = new Paypal();
+            compra.setPagamento("PayPal");
+        } else {
+            pagamento = new CartaoDeCredito();
+            compra.setPagamento("CartaoDeCredito");
+        }
+
+        return pagamento;
+    }
+
+    /**
+     * Método auxiliar para remover produtos do estoque dado uma lista de pedidos.
+     * 
+     * @param pedidos Lista de pedidos
+     */
+    private void removeDoEstoque(List<Pedido> pedidos) {
+        for (Pedido pedidoAtual : pedidos) {
+            long produtoId = pedidoAtual.getProduto().getId();
+            Optional<Produto> produtoOP = produtoRepository.findById(produtoId);
+            Produto produto = produtoOP.get();
+            produto.removerEstoque(pedidoAtual.getQuantidade());
+            produtoRepository.save(produto);
+        }
+    }
+
+    /**
+     * Método auxiliar para adicionar os pedidos em um compra.
+     * 
+     * @param pedidos Lista de pedidos.
+     * @param compra  Compra, onde serão adicionado os pedidos
+     */
+    private void adicionaPedidosNaCompra(List<Pedido> pedidos, Compra compra) {
+        for (Pedido pedidoAtual : pedidos) {
+            long produtoId = pedidoAtual.getProduto().getId();
+            Optional<Produto> produtoOP = produtoRepository.findById(produtoId);
+            Produto produto = produtoOP.get();
+
+            compra.adicionaProduto(produto);
+        }
+    }
+
+    /**
+     * Método auxiliar para calcular o preço dos itens que estão carrinho. Além de
+     * calcular o desconto recebido de acordo com o tipo de Cliente e a quantidade
+     * de itens no carrinho.
+     * 
+     * @param pedidos   Lista de pedidos que estão no carrinho
+     * @param cliente   Cliente que irá efetuar a compra
+     * @param pagamento Forma de pagamento
+     * @return Valor final da compra.
+     */
+    private BigDecimal calculaPrecoCarrinho(List<Pedido> pedidos, Cliente cliente, Pagamento pagamento) {
+
+        BigDecimal valorTotal = new BigDecimal(0);
+        long quantidadeTotal = 0;
+
+        for (Pedido pedidoAtual : pedidos) {
+            quantidadeTotal += pedidoAtual.getQuantidade();
+
+            BigDecimal quantidadeAtual = new BigDecimal(pedidoAtual.getQuantidade());
+            BigDecimal valorAtual = pedidoAtual.getPreco().multiply(quantidadeAtual);
+            valorTotal = valorTotal.add(valorAtual);
+        }
+
+        valorTotal = new BigDecimal(cliente.descontoCompras(valorTotal.doubleValue(), quantidadeTotal));
+        valorTotal = new BigDecimal(pagamento.getValor(valorTotal.doubleValue()));
+
+        return valorTotal;
+    }
 }
