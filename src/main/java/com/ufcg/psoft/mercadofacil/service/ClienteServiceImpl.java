@@ -7,7 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
-import com.ufcg.psoft.mercadofacil.model.Cliente;
+import com.ufcg.psoft.mercadofacil.model.Cliente.Cliente;
+import com.ufcg.psoft.mercadofacil.model.Cliente.ClienteNormal;
 import com.ufcg.psoft.mercadofacil.repository.ClienteRepository;
 
 @Service
@@ -37,8 +38,8 @@ public class ClienteServiceImpl implements ClienteService {
 	}
 
 	public Cliente criaCliente(ClienteDTO clienteDTO) {
-		Cliente cliente = new Cliente(clienteDTO.getCPF(), clienteDTO.getNome(), clienteDTO.getIdade(),
-				clienteDTO.getEndereco());
+
+		Cliente cliente = new ClienteNormal(clienteDTO);
 
 		return cliente;
 	}

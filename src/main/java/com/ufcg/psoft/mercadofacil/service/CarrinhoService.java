@@ -1,18 +1,15 @@
 package com.ufcg.psoft.mercadofacil.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import com.ufcg.psoft.mercadofacil.model.Compra;
+import com.ufcg.psoft.mercadofacil.model.Carrinho;
 
 public interface CarrinhoService {
 
-    public void salvarCompra(Compra compra);
+    public void salvarCarrinho(Carrinho carrinho);
 
-    public void deletarCompra(Compra compra);
+    public void deletarCarrinho(Carrinho carrinho);
 
-    public Optional<Compra> getByIdDoProduto(long idDoProduto);
+    // public Optional<Carrinho> getByIdDoProduto(long idDoProduto);
 
-    public List<Compra> listarCompras();
+    // public List<Compra> listarCompras();
 
 }

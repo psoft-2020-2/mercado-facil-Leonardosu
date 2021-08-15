@@ -13,7 +13,7 @@ public class ErroCarrinho {
 
     public static ResponseEntity<CustomErrorType> erroCarrinhoVazio() {
         return new ResponseEntity<CustomErrorType>(new CustomErrorType(ErroCarrinho.CARRINHO_VAZIO),
-                HttpStatus.NO_CONTENT);
+                HttpStatus.NOT_ACCEPTABLE);
     }
 
     public static ResponseEntity<CustomErrorType> erroEstoqueInsuficiente(Produto produto) {

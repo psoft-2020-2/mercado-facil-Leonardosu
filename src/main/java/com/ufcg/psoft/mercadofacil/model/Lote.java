@@ -5,6 +5,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Entity
 public class Lote {
 
@@ -17,6 +19,7 @@ public class Lote {
     private Produto produto;
     private int numeroDeItens;
 
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private String validade;
 
     private Lote() {
@@ -28,7 +31,7 @@ public class Lote {
     }
 
     public Lote(Produto produto, int numeroDeItens, String dataValidade) {
-        super();
+        this();
         this.produto = produto;
         this.numeroDeItens = numeroDeItens;
         this.validade = dataValidade;
