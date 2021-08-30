@@ -13,20 +13,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ufcg.psoft.mercadofacil.DTO.PedidoDTO;
 
 import com.ufcg.psoft.mercadofacil.model.*;
 import com.ufcg.psoft.mercadofacil.model.Cliente.*;
-import com.ufcg.psoft.mercadofacil.model.Pagamento.Boleto;
-import com.ufcg.psoft.mercadofacil.model.Pagamento.CartaoDeCredito;
-import com.ufcg.psoft.mercadofacil.model.Pagamento.Pagamento;
-import com.ufcg.psoft.mercadofacil.model.Pagamento.Paypal;
+import com.ufcg.psoft.mercadofacil.model.Entrega.*;
+import com.ufcg.psoft.mercadofacil.model.Estrategias.PorEndereco.*;
+import com.ufcg.psoft.mercadofacil.model.Estrategias.PorProduto.*;
+import com.ufcg.psoft.mercadofacil.model.Pagamento.*;
 import com.ufcg.psoft.mercadofacil.repository.*;
 import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 import com.ufcg.psoft.mercadofacil.util.ErroCarrinho;
 import com.ufcg.psoft.mercadofacil.util.ErroCliente;
+import com.ufcg.psoft.mercadofacil.util.ErroEntrega;
 import com.ufcg.psoft.mercadofacil.util.ErroProduto;
 import com.ufcg.psoft.mercadofacil.util.ErroPagamento;
 
@@ -186,7 +188,7 @@ public class CarrinhoApiController {
         return new ResponseEntity<>(novoCarrinho, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/cliente/{id}/compra", method = RequestMethod.GET)
+    @RequestMapping(value = "pagamentos", method = RequestMethod.GET)
     public ResponseEntity<?> listarFormasDePagamento() {
 
         String pagamentos = "Boleto\n" + "PayPal\n" + "CartaoDeCredito\n";
@@ -194,8 +196,17 @@ public class CarrinhoApiController {
         return new ResponseEntity<String>(pagamentos, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "entregas", method = RequestMethod.GET)
+    public ResponseEntity<?> listarFormasDeEntrega() {
+
+        String entregas = "Padrao\n" + "Retirada\n" + "Express\n";
+
+        return new ResponseEntity<String>(entregas, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/cliente/{id}/compra", method = RequestMethod.POST)
-    public ResponseEntity<?> comprarCarrinho(@PathVariable("id") long id, @RequestBody String formaPagamento) {
+    public ResponseEntity<?> comprarCarrinho(@PathVariable("id") long id, @RequestParam String formaPagamento,
+            @RequestParam String formaEntrega) {
 
         if (!clienteRepository.findById(id).isPresent())
             return ErroCliente.erroClienteNaoEnconrtrado(id);
@@ -211,11 +222,17 @@ public class CarrinhoApiController {
 
         if (!pagamentoValido(formaPagamento))
             return ErroPagamento.erroPagamentoInvalido();
+        if (!entregaValida(formaEntrega))
+            return ErroEntrega.erroEntregaInvalida();
 
         Pagamento pagamento = criaPagamento(formaPagamento, compra);
+        Entrega entrega = criaEntrega(formaEntrega);
+        EstrategiaEndereco estrategiaEndereco = criaEstrategiaEndereco(cliente);
+        EstrategiaProduto estrategiaProduto = criaEstrategiaProduto(pedidos);
 
         // Cálculo do valor final
-        BigDecimal valorTotal = calculaPrecoCarrinho(pedidos, cliente, pagamento);
+        BigDecimal valorTotal = calculaPrecoCarrinho(pedidos, cliente, pagamento, entrega, estrategiaEndereco,
+                estrategiaProduto);
         // Atualização do estoque, removendo os produtos que estão no carrinho
         removeDoEstoque(pedidos);
 
@@ -231,6 +248,66 @@ public class CarrinhoApiController {
         this.desfazCarrinho(cliente.getId());
 
         return new ResponseEntity<String>(compra.toString(), HttpStatus.CREATED);
+    }
+
+    private EstrategiaProduto criaEstrategiaProduto(List<Pedido> pedidos) {
+        boolean fragil = false, refrigeracao = false;
+        EstrategiaProduto estrategiaProduto;
+
+        for (Pedido pedidoAtual : pedidos) {
+            Produto produtoAtual = pedidoAtual.getProduto();
+            if (produtoAtual.isFragil())
+                fragil = true;
+            if (produtoAtual.isRefrigeracao())
+                refrigeracao = true;
+        }
+
+        if (refrigeracao)
+            estrategiaProduto = new Refrigeracao();
+        else if (fragil && !refrigeracao)
+            estrategiaProduto = new Fragil();
+        else
+            estrategiaProduto = new Comum();
+
+        return estrategiaProduto;
+    }
+
+    private EstrategiaEndereco criaEstrategiaEndereco(Cliente cliente) {
+        String endereco = cliente.getEndereco();
+        EstrategiaEndereco estrategiaEndereco;
+        if (endereco.equals("Rua tal X"))
+            estrategiaEndereco = new Bairro();
+        else if (endereco.equals("Rua tal Y"))
+            estrategiaEndereco = new Municipal();
+        else
+            estrategiaEndereco = new Estadual();
+        return estrategiaEndereco;
+    }
+
+    private Entrega criaEntrega(String formaEntrega) {
+        formaEntrega = formaEntrega.toLowerCase().trim();
+        Entrega entrega;
+        if (formaEntrega.equals("padrao"))
+            entrega = new Padrao();
+        else if (formaEntrega.equals("retirada"))
+            entrega = new Retirada();
+        else
+            entrega = new Express();
+        return entrega;
+    }
+
+    private boolean entregaValida(String formaEntrega) {
+        if (formaEntrega == null)
+            return false;
+
+        formaEntrega = formaEntrega.toLowerCase().trim();
+        if (formaEntrega.isEmpty() || formaEntrega.isBlank())
+            return false;
+
+        if (formaEntrega.equals("padrao") || formaEntrega.equals("retirada") || formaEntrega.equals("express"))
+            return true;
+
+        return false;
     }
 
     /**
@@ -316,12 +393,16 @@ public class CarrinhoApiController {
      * calcular o desconto recebido de acordo com o tipo de Cliente e a quantidade
      * de itens no carrinho.
      * 
-     * @param pedidos   Lista de pedidos que estão no carrinho
-     * @param cliente   Cliente que irá efetuar a compra
-     * @param pagamento Forma de pagamento
+     * @param pedidos            Lista de pedidos que estão no carrinho
+     * @param cliente            Cliente que irá efetuar a compra
+     * @param pagamento          Forma de pagamento
+     * @param estrategiaProduto  Estrategia do produto (Fragil/Refrigeracao)
+     * @param estrategiaEndereco Estrategia de endereco
+     * @param entrega            Forma de entrega
      * @return Valor final da compra.
      */
-    private BigDecimal calculaPrecoCarrinho(List<Pedido> pedidos, Cliente cliente, Pagamento pagamento) {
+    private BigDecimal calculaPrecoCarrinho(List<Pedido> pedidos, Cliente cliente, Pagamento pagamento, Entrega entrega,
+            EstrategiaEndereco estrategiaEndereco, EstrategiaProduto estrategiaProduto) {
 
         BigDecimal valorTotal = new BigDecimal(0);
         long quantidadeTotal = 0;
@@ -336,7 +417,9 @@ public class CarrinhoApiController {
 
         valorTotal = new BigDecimal(cliente.descontoCompras(valorTotal.doubleValue(), quantidadeTotal));
         valorTotal = new BigDecimal(pagamento.getValor(valorTotal.doubleValue()));
-
+        valorTotal = new BigDecimal(entrega.getValor(valorTotal.doubleValue()));
+        valorTotal = new BigDecimal(estrategiaEndereco.getValor(valorTotal.doubleValue()));
+        valorTotal = new BigDecimal(estrategiaProduto.getValor(valorTotal.doubleValue()));
         return valorTotal;
     }
 }
