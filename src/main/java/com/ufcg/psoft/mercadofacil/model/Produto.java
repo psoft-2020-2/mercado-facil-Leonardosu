@@ -31,6 +31,10 @@ public class Produto {
 
 	private int qtdEstoque;
 
+	private boolean fragil;
+
+	private boolean refrigeracao;
+
 	private Produto() {
 	}
 
@@ -48,6 +52,8 @@ public class Produto {
 
 		this.isDisponivel = false;
 		this.qtdEstoque = 0;
+		this.fragil = false;
+		this.refrigeracao = false;
 	}
 
 	public Long getId() {
@@ -114,7 +120,6 @@ public class Produto {
 		this.descricao = novaDescricao;
 	}
 
-	// coisa nova
 	public void adicionarEstoque(long quantidade) {
 		this.qtdEstoque += quantidade;
 	}
@@ -125,6 +130,22 @@ public class Produto {
 
 	public long getEstoque() {
 		return this.qtdEstoque;
+	}
+
+	public void setFragil(boolean fragil) {
+		this.fragil = fragil;
+	}
+
+	public void setRefrigeracao(boolean refrigeracao) {
+		this.refrigeracao = refrigeracao;
+	}
+
+	public boolean isFragil() {
+		return this.fragil;
+	}
+
+	public boolean isRefrigeracao() {
+		return this.refrigeracao;
 	}
 
 	@Override
