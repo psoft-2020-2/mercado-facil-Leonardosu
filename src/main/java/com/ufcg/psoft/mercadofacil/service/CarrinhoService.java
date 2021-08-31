@@ -8,8 +8,4 @@ public interface CarrinhoService {
 
     public void deletarCarrinho(Carrinho carrinho);
 
-    // public Optional<Carrinho> getByIdDoProduto(long idDoProduto);
-
-    // public List<Compra> listarCompras();
-
 }

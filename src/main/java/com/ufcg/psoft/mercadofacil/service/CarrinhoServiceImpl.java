@@ -17,16 +17,11 @@ public class CarrinhoServiceImpl implements CarrinhoService {
 
     public void salvarCompra(Compra compra) {
 
-        // carrinho.save(compra);
     }
 
     public List<Carrinho> listarCompras() {
         return carrinho.findAll();
     }
-
-    // public Optional<Carrinho> getByIdDoProduto(long idDoProduto) {
-    // return carrinho.findByIdDoProduto(idDoProduto);
-    // }
 
     @Override
     public void salvarCarrinho(Carrinho carrinho) {

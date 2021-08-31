@@ -11,7 +11,6 @@ public class ClienteNormal extends Cliente {
 
     public ClienteNormal() {
         super();
-        // super.setTipo("Normal");
     }
 
     public ClienteNormal(long id) {

@@ -1,30 +1,32 @@
 package com.ufcg.psoft.mercadofacil.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
-import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Compra;
 import com.ufcg.psoft.mercadofacil.model.Cliente.Cliente;
 import com.ufcg.psoft.mercadofacil.model.Cliente.ClienteNormal;
-import com.ufcg.psoft.mercadofacil.repository.CarrinhoRepository;
-import com.ufcg.psoft.mercadofacil.repository.ClienteRepository;
+
 import com.ufcg.psoft.mercadofacil.repository.CompraRepository;
-import com.ufcg.psoft.mercadofacil.service.ClienteService;
+import com.ufcg.psoft.mercadofacil.repository.ClienteRepository;
+import com.ufcg.psoft.mercadofacil.repository.CarrinhoRepository;
+
+import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
 import com.ufcg.psoft.mercadofacil.util.ErroCliente;
+import com.ufcg.psoft.mercadofacil.service.ClienteService;
 
 @RestController
 @RequestMapping("/api")
@@ -124,16 +126,14 @@ public class ClienteApiController {
 
 		Optional<Cliente> clienteOP = clienteRepository.findById(id);
 
-		if (!clienteOP.isPresent()) {
+		if (!clienteOP.isPresent())
 			return ErroCliente.erroClienteNaoEnconrtrado(id);
-		}
 
 		List<Compra> compras = new ArrayList<Compra>();
 		compras = compraRepository.findCompraByClienteId(id);
 
-		if (compras.isEmpty()) {
+		if (compras.isEmpty())
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
 
 		Cliente cliente = clienteOP.get();
 

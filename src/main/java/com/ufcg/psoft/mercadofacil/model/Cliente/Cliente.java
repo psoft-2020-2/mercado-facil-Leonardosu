@@ -35,8 +35,6 @@ public abstract class Cliente {
 
 	private String endereco;
 
-	// private String tipo;
-
 	@OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL)
 	private Carrinho carrinho;
 
@@ -113,7 +111,6 @@ public abstract class Cliente {
 		this.endereco = endereco;
 	}
 
-	// 2 push
 	public Carrinho getCarrinho() {
 		return this.carrinho;
 	}
@@ -135,19 +132,28 @@ public abstract class Cliente {
 		this.compras = compras;
 	}
 
-	public List<String> compraSimples(List<Compra> compra) {
+	private String formataCompraSimples(Compra compra) {
+		return compra.getId() + " - " + compra.getData() + " - " + compra.getProdutos().toString() + " - "
+				+ compra.getValor();
+	}
+
+	private String formataCompraDetalhada(Compra compra) {
+		return compra.getId() + " - " + compra.getData() + " - " + compra.getProdutos() + " - " + compra.getValor()
+				+ " - " + compra.getPagamento().toString();
+
+	}
+
+	public List<String> compraSimples(List<Compra> compras) {
 		List<String> simples = new ArrayList<>();
-		for (Compra c : compra) {
-			simples.add(c.getId() + " - " + c.getData() + " - " + c.getProdutos().toString() + " - " + c.getValor());
-		}
+		for (Compra compraAtual : compras)
+			simples.add(formataCompraSimples(compraAtual));
+
 		return simples;
 	}
 
 	public List<String> compraDetalhada(Compra compra) {
 		List<String> detalhada = new ArrayList<>();
-		detalhada.add(compra.getId() + " - " + compra.getData() + " - " + compra.getProdutos() + " - "
-				+ compra.getValor() + " - " + compra.getPagamento().toString());
-
+		detalhada.add(formataCompraDetalhada(compra));
 		return detalhada;
 	}
 

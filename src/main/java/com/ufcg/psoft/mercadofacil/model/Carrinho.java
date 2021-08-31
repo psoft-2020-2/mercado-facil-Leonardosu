@@ -1,6 +1,5 @@
 package com.ufcg.psoft.mercadofacil.model;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,9 +12,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.ufcg.psoft.mercadofacil.model.Cliente.Cliente;
-import com.ufcg.psoft.mercadofacil.repository.ProdutoRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Entity
 public class Carrinho {
@@ -29,9 +25,6 @@ public class Carrinho {
     @OneToOne
     @MapsId
     private Cliente cliente;
-
-    // @Autowired
-    // ProdutoRepository produtoRepository;
 
     public Carrinho() {
         super();
@@ -112,17 +105,4 @@ public class Carrinho {
     public boolean isEmpty() {
         return this.pedidos.size() == 0;
     }
-    // public BigDecimal getPrecoTotal() {
-
-    // BigDecimal valorTotal = new BigDecimal(0);
-    // for (Pedido pedidoAtual : pedidos) {
-    // Produto produto = produtoRepository.findById(pedidoAtual.getId()).get();
-
-    // BigDecimal quantidade = new BigDecimal(pedidoAtual.getQuantidade());
-    // BigDecimal valorAtual = produto.getPreco().multiply(quantidade);
-
-    // valorTotal = valorTotal.add(valorAtual);
-    // }
-    // return valorTotal;
-    // }
 }

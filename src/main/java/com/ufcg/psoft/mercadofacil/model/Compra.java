@@ -14,7 +14,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 import com.ufcg.psoft.mercadofacil.model.Cliente.Cliente;
-import com.ufcg.psoft.mercadofacil.util.PagamentoInvalidoException;
 
 @Entity
 public class Compra {
@@ -74,21 +73,7 @@ public class Compra {
 
     // throws PagamentoInvalidoException
     public void setPagamento(String pagamento) {
-
-        // pagamento = pagamento.toLowerCase();
         this.pagamento = pagamento;
-        // if (pagamento == "boleto" || pagamento == "paypal" || pagamento ==
-        // "cartaocredito")
-        // this.pagamento = pagamento;
-        // else
-        // throw new PagamentoInvalidoException("Forma de Pagamento Invalida");
-
-        // if (pagamento == "Boleto")
-        // this.pagamento = Compra.BOLETO;
-        // else if (pagamento == 2)
-        // this.pagamento = Compra.PAYPAL;
-        // else if (pagamento == 3)
-        // this.pagamento = Compra.CARTAO;
     }
 
     public BigDecimal getValor() {
@@ -116,7 +101,6 @@ public class Compra {
     }
 
     public String gerarData() {
-        // SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
         Date data = new Date();
         return data.toString();
     }

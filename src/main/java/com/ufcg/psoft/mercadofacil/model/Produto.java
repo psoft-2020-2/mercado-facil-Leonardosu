@@ -164,8 +164,4 @@ public class Produto {
 		return this.id + "-" + this.nome;
 	}
 
-	// public String toString() {
-	// return this.id + " " + this.nome + " R$" + this.preco.toString();
-	// }
-
 }
