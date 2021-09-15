@@ -17,6 +17,7 @@ import com.ufcg.psoft.mercadofacil.DTO.LoteDTO;
 import com.ufcg.psoft.mercadofacil.model.Lote;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.service.LoteService;
+import com.ufcg.psoft.mercadofacil.service.NotificadorServiceImpl;
 import com.ufcg.psoft.mercadofacil.service.ProdutoService;
 import com.ufcg.psoft.mercadofacil.util.ErroLote;
 import com.ufcg.psoft.mercadofacil.util.ErroProduto;
@@ -31,6 +32,9 @@ public class LoteApiController {
 
 	@Autowired
 	ProdutoService produtoService;
+
+	@Autowired
+	NotificadorServiceImpl notificacaoService;
 
 	@RequestMapping(value = "/lotes", method = RequestMethod.GET)
 	public ResponseEntity<?> listarLotes() {
@@ -55,16 +59,25 @@ public class LoteApiController {
 
 		Produto produto = optionalProduto.get();
 		Lote lote = loteService.criaLote(numItens, produto, validade);
+		String notificacao = "";
 
 		if (numItens > 0) {
 			produto.tornaDisponivel();
+			// Lugar onde eu irei notificar os clientes cadastrados na lista de estoque.
+			if (produto.getEstoque() == 0)
+				notificacao = notificacaoService.notificaByProduto("estoque", produto);
+
 			produto.adicionarEstoque(numItens);
 			produtoService.salvarProdutoCadastrado(produto);
 		}
 
 		loteService.salvarLote(lote);
 
-		return new ResponseEntity<>(lote, HttpStatus.CREATED);
+		if (notificacao.isEmpty())
+			return new ResponseEntity<>(lote, HttpStatus.CREATED);
+		else
+			return new ResponseEntity<>(notificacao, HttpStatus.CREATED);
+
 	}
 
 	@RequestMapping(value = "/lotes/{id}", method = RequestMethod.GET)
