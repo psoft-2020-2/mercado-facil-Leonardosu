@@ -17,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.ufcg.psoft.mercadofacil.DTO.ProdutoDTO;
 import com.ufcg.psoft.mercadofacil.model.Produto;
 import com.ufcg.psoft.mercadofacil.service.ProdutoService;
+import com.ufcg.psoft.mercadofacil.service.NotificadorServiceImpl;
 import com.ufcg.psoft.mercadofacil.util.ErroProduto;
 
 @RestController
@@ -26,24 +27,27 @@ public class ProdutoApiController {
 
 	@Autowired
 	ProdutoService produtoService;
-	
+
+	@Autowired
+	NotificadorServiceImpl notificacaoService;
+
 	@RequestMapping(value = "/produtos", method = RequestMethod.GET)
 	public ResponseEntity<?> listarProdutos() {
-		
+
 		List<Produto> produtos = produtoService.listarProdutos();
-		
+
 		if (produtos.isEmpty()) {
 			return ErroProduto.erroSemProdutosCadastrados();
 		}
-		
+
 		return new ResponseEntity<List<Produto>>(produtos, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/produto/", method = RequestMethod.POST)
 	public ResponseEntity<?> criarProduto(@RequestBody ProdutoDTO produtoDTO, UriComponentsBuilder ucBuilder) {
 
 		List<Produto> produtos = produtoService.getProdutoByCodigoBarra(produtoDTO.getCodigoBarra());
-		
+
 		if (!produtos.isEmpty()) {
 			return ErroProduto.erroProdutoJaCadastrado(produtoDTO);
 		}
@@ -58,40 +62,48 @@ public class ProdutoApiController {
 	public ResponseEntity<?> consultarProduto(@PathVariable("id") long id) {
 
 		Optional<Produto> optionalProduto = produtoService.getProdutoById(id);
-	
+
 		if (!optionalProduto.isPresent()) {
 			return ErroProduto.erroProdutoNaoEnconrtrado(id);
 		}
-		
+
 		return new ResponseEntity<Produto>(optionalProduto.get(), HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> atualizarProduto(@PathVariable("id") long id, @RequestBody ProdutoDTO produtoDTO) {
 
 		Optional<Produto> optionalProduto = produtoService.getProdutoById(id);
-		
+
 		if (!optionalProduto.isPresent()) {
 			return ErroProduto.erroProdutoNaoEnconrtrado(id);
 		}
-		
+
 		Produto produto = optionalProduto.get();
-		
+
+		// Promocao
+		String notificacao = "";
+		if (produto.getPreco().compareTo(produtoDTO.getPreco()) >= 0) {
+			notificacao = notificacaoService.notificaByProduto("promocao", produto);
+		}
+
 		produtoService.atualizaProduto(produtoDTO, produto);
 		produtoService.salvarProdutoCadastrado(produto);
-		
-		return new ResponseEntity<Produto>(produto, HttpStatus.OK);
+		if (notificacao.isEmpty())
+			return new ResponseEntity<Produto>(produto, HttpStatus.OK);
+
+		return new ResponseEntity<String>(notificacao, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/produto/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> removerProduto(@PathVariable("id") long id) {
 
 		Optional<Produto> optionalProduto = produtoService.getProdutoById(id);
-		
+
 		if (!optionalProduto.isPresent()) {
 			return ErroProduto.erroProdutoNaoEnconrtrado(id);
 		}
-				
+
 		produtoService.removerProdutoCadastrado(optionalProduto.get());
 
 		return new ResponseEntity<Produto>(HttpStatus.OK);

@@ -11,6 +11,54 @@ insert into produto (
         REFRIGERACAO
     )
 values(
+        1,
+        'Arroz Branco',
+        'xxxxx',
+        'Tio Pedro',
+        TRUE,
+        'Perecíveis',
+        5.5,
+        0,
+        False,
+        False
+    );
+insert into produto (
+        ID,
+        NOME,
+        CODIGO_BARRA,
+        FABRICANTE,
+        IS_DISPONIVEL,
+        CATEGORIA,
+        PRECO,
+        QTD_ESTOQUE,
+        FRAGIL,
+        REFRIGERACAO
+    )
+values(
+        2,
+        'Feojao Branco',
+        'yyyyy',
+        'Tio Pedro',
+        TRUE,
+        'Perecíveis',
+        10,
+        0,
+        False,
+        False
+    );
+insert into produto (
+        ID,
+        NOME,
+        CODIGO_BARRA,
+        FABRICANTE,
+        IS_DISPONIVEL,
+        CATEGORIA,
+        PRECO,
+        QTD_ESTOQUE,
+        FRAGIL,
+        REFRIGERACAO
+    )
+values(
         10002,
         'Arroz Integral',
         '87654322-B',

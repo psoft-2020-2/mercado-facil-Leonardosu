@@ -16,6 +16,7 @@ import javax.persistence.OneToOne;
 import com.ufcg.psoft.mercadofacil.DTO.ClienteDTO;
 import com.ufcg.psoft.mercadofacil.model.Carrinho;
 import com.ufcg.psoft.mercadofacil.model.Compra;
+
 import javax.persistence.InheritanceType;
 
 @Entity
