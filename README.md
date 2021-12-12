@@ -12,6 +12,14 @@ produto do supermercado;
 produto no sistema;
 - Eu, como administrador, gostaria de criar lotes associados aos produtos,
 informando a quantidade de itens disponíveis e a data de validade.
+- Eu, como usuario, gostaria de criar adicionar produtos no meu carrinho,
+informando a quantidade de itens e o ID do produtos.
+- Eu, como usuario, gostaria de criar remover produtos do meu carrinho,
+informando a quantidade de itens e o ID do produtos.
+- Eu, como usuario, gostaria de descartar o meu carrinho,
+apagando todos os produtos.
+- Eu, como usuario, gostaria de realizar uma compra,
+comprando todos os produtos que estao no carrinho.
 
 ## Estrutura básica
 

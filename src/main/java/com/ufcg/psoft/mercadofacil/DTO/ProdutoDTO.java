@@ -11,8 +11,14 @@ public class ProdutoDTO {
 	private String codigoBarra;
 
 	private String fabricante;
-	
+
 	private String categoria;
+
+	private String descricao;
+
+	private boolean fragil;
+
+	private boolean refrigeracao;
 
 	public String getNome() {
 		return nome;
@@ -52,5 +58,29 @@ public class ProdutoDTO {
 
 	public void setCategoria(String categoria) {
 		this.categoria = categoria;
+	}
+
+	public String getDescricao() {
+		return this.descricao;
+	}
+
+	public void setDescricao(String novaDescricao) {
+		this.descricao = novaDescricao;
+	}
+
+	public boolean getFragil() {
+		return this.fragil;
+	}
+
+	public void setFragil(boolean fragil) {
+		this.fragil = fragil;
+	}
+
+	public boolean getRefrigeracao() {
+		return this.refrigeracao;
+	}
+
+	public void setRefrigeracao(boolean refrigeracao) {
+		this.refrigeracao = refrigeracao;
 	}
 }
